@@ -15,9 +15,9 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux
-          - os: macos-13      # Intel
+          - os: macos-15-intel
             platform: osx_intel
-          - os: macos-14      # Apple Silicon
+          - os: macos-latest
             platform: osx_silicon
           - os: windows-latest
             platform: windows
@@ -26,11 +26,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Confirm architecture
+        if: runner.os != 'Windows'
+        run: uname -m
+
       # Fortran compiler
-      - name: Setup Fortran
+      - name: Setup Fortran (Unix)
+        if: runner.os != 'Windows'
         uses: fortran-lang/setup-fortran@v1
         with:
           compiler: gcc
+
+      - name: Setup MSYS2 (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-gcc-fortran
+            mingw-w64-x86_64-make
 
       # Python
       - name: Setup Python
@@ -44,7 +59,13 @@ jobs:
           pip install build wheel setuptools
 
       # Build binaries
-      - name: Build Fortran binaries
+      - name: Build Fortran binaries (Unix)
+        if: runner.os != 'Windows'
+        run: make
+
+      - name: Build Fortran binaries (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: make
 
       - name: Verify binaries
