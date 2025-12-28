@@ -67,7 +67,7 @@ jobs:
       - name: Build Fortran binaries (Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}
-        run: make
+        run: mingw32-make
 
       - name: Verify binaries
         run: |
