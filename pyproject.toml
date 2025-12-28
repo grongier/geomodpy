@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geomodpy"
+version = "0.0.1"
+requires-python = ">=3.9"
+authors = [{name = "Guillaume Rongier"}]
+description = "Python package for geomodeling"
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+keywords = ["python", "geomodeling", "geostatistics"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Development Status :: 4 - Beta",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "xarray",
+    "numba",
+    "scipy",
+    "matplotlib",
+    "ipywidgets",
+    "scikit-learn"
+]
+
+[tool.setuptools.packages.find]
+exclude = ["examples"]
+
+[tool.setuptools.package-data]
+geomodpy = ["wrapper/bin/**/*"]
+
+[project.urls]
+"Homepage" = "https://github.com/grongier/geomodpy"
+"Bug Tracker" = "https://github.com/grongier/geomodpy/issues"
