@@ -32,6 +32,7 @@ from ..gridding.structured import (
     calculate_cell_centers,
     compute_spiral_offsets,
     find_enclosing_cell_from_nearest_center,
+    extract_coordinates,
 )
 from ..utils import groupby, iter_columns
 
@@ -42,7 +43,7 @@ from ..utils import groupby, iter_columns
 
 def check_feature_names(X):
     """
-    Get the feature names of an array-like object, if any.
+    Gets the feature names of an array-like object, if any.
     """
     if isinstance(X, pd.DataFrame):
         return X.columns
@@ -74,11 +75,30 @@ class SampleUpscaler:
 
     Parameters
     ----------
-    nodes : ndarray of shape (3, n_nodes_x, n_nodes_y, n_nodes_z)
-        3D coordinates of the nodes of the grid (i.e., the corners of the cells).
+    grid : xarray.Dataset, default=None
+        Structured grid represented as a dataset. Either `grid` or `nodes` need
+        to be provided.
+    nodes : ndarray of shape (3, n_nodes_x, n_nodes_y, n_nodes_z), default=None
+        3D coordinates of the nodes of the grid (i.e., the corners of the cells),
+        which can be provided instead of `grid`.
     cell_centers : ndarray of shape (3, n_cells_x, n_cells_y, n_cells_z), default=None
         3D coordinates of the centers of the grid cells, calculated from the nodes
         if none are provided.
+    x_nodes : str, default='X_nodes'
+        Name of the coordinates of the nodes along the x axis in `grid`.
+    y_nodes : str, default='Y_nodes'
+        Name of the coordinates of the nodes along the y axis in `grid`.
+    z_nodes : str, default='Z_nodes'
+        Name of the coordinates of the nodes along the z axis in `grid`.
+    x : str, default='X'
+        Name of the coordinates of the cell centers along the x axis in `grid`.
+        If None, the coordinates of the cell centers aren't returned.
+    y : str, default='Y'
+        Name of the coordinates of the cell centers along the y axis in `grid`.
+        If None, the coordinates of the cell centers aren't returned.
+    z : str, default='Z'
+        Name of the coordinates of the cell centers along the z axis in `grid`.
+        If None, the coordinates of the cell centers aren't returned.
     n_cell_radius : int or ndarray of shape (3,), default=5
         Maximum number of cells along each of the three axes of the grid to search
         for cell inclusion. 0 means that only the cell with the nearest center is
@@ -89,12 +109,30 @@ class SampleUpscaler:
         object; otherwise keeps them as two separate objects.
     """
 
-    def __init__(self, nodes, cell_centers=None, n_cell_radius=5, merge_outputs=True):
+    def __init__(
+        self,
+        grid=None,
+        nodes=None,
+        cell_centers=None,
+        x_nodes="X_nodes",
+        y_nodes="Y_nodes",
+        z_nodes="Z_nodes",
+        x="X",
+        y="Y",
+        z="Z",
+        n_cell_radius=5,
+        merge_outputs=True,
+    ):
 
-        self.nodes = np.asarray(nodes)
-        self.cell_centers = (
-            calculate_cell_centers(self.nodes) if cell_centers is None else cell_centers
-        )
+        if grid is not None:
+            self.nodes, self.cell_centers = extract_coordinates(
+                grid, x_nodes=x_nodes, y_nodes=y_nodes, z_nodes=z_nodes, x=x, y=y, z=z
+            )
+        else:
+            self.nodes = np.asarray(nodes)
+            self.cell_centers = cell_centers
+        if self.cell_centers is None:
+            self.cell_centers = calculate_cell_centers(self.nodes)
         self.merge_outputs = merge_outputs
 
         self._shape = self.cell_centers.shape[1:]

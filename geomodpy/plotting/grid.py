@@ -5,7 +5,7 @@
 # Copyright (c) 2025 Guillaume Rongier
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files (the 'Software'), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
@@ -14,7 +14,7 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 
+import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
@@ -41,7 +42,7 @@ def plot_3d_slices(
     x="X",
     y="Y",
     z="Z",
-    min_aspect=0.5,
+    min_aspect=1.0,
     plot_slices=True,
     cmap=None,
     use_log=False,
@@ -75,8 +76,8 @@ def plot_3d_slices(
         Name of the x-axis coordinates in `ds`.
     z : str, default='Z'
         Name of the x-axis coordinates in `ds`.
-    min_aspect : float, default=0.5
-        Minimum aspect between 0 and 1 for the vertical slices.
+    min_aspect : float, default=1.
+        Minimum aspect factor for the vertical slices.
     plot_slices : bool, default=True
         If True, displays lines that shows where the slices are located.
     cmap : str or Colormap, default=None
@@ -98,12 +99,15 @@ def plot_3d_slices(
     fig = plt.figure(figsize=figsize)
     fig.canvas.header_visible = False
 
-    i = ds[var].shape[0] // 2 if i is None else i
-    j = ds[var].shape[1] // 2 if j is None else j
-    k = ds[var].shape[2] // 2 if k is None else k
+    if isinstance(ds, xr.DataArray) == False or isinstance(var, int):
+        ds = ds[var]
+
+    i = ds.shape[0] // 2 if i is None else i
+    j = ds.shape[1] // 2 if j is None else j
+    k = ds.shape[2] // 2 if k is None else k
     if norm is None:
-        vmin = min(ds[var][i].min(), ds[var][:, j].min(), ds[var][..., k].min())
-        vmax = max(ds[var][i].max(), ds[var][:, j].max(), ds[var][..., k].max())
+        vmin = min(ds[i].min(), ds[:, j].min(), ds[..., k].min())
+        vmax = max(ds[i].max(), ds[:, j].max(), ds[..., k].max())
         if vmax > 0.0 and vmin < 0.0:
             vmax = max(abs(vmin), vmax)
             vmin = -vmax
@@ -117,7 +121,7 @@ def plot_3d_slices(
         spatial_unit = ""
 
     ax = fig.add_gridspec(top=0.75, right=0.75).subplots()
-    ds[var][..., k].plot(x=x, y=y, ax=ax, norm=norm, cmap=cmap, add_colorbar=False)
+    ds[..., k].plot(x=x, y=y, ax=ax, norm=norm, cmap=cmap, add_colorbar=False)
     if plot_slices == True:
         if ds[x].ndim == 1 and ds[y].ndim == 1:
             ax.axvline(ds[x][i], c="k", ls="--", lw=0.75)
@@ -129,14 +133,10 @@ def plot_3d_slices(
 
     aspect = (ds[z].max() - ds[z].min()) / (ds[y].max() - ds[y].min())
     aspect = aspect if aspect > min_aspect else min_aspect
-    ratio = (
-        ds[var].shape[2] / ds[var].shape[1]
-        if ds[var].shape[2] < ds[var].shape[1]
-        else 1.0
-    )
+    ratio = ds.shape[2] / ds.shape[1] if ds.shape[2] < ds.shape[1] else 1.0
     ax_slicey = ax.inset_axes([0, 1.0 + ratio * 0.1, 1, ratio * aspect], sharex=ax)
     ax_slicey.tick_params(axis="x", labelbottom=False)
-    ds[var][:, j].plot(x=x, y=z, ax=ax_slicey, norm=norm, cmap=cmap, add_colorbar=False)
+    ds[:, j].plot(x=x, y=z, ax=ax_slicey, norm=norm, cmap=cmap, add_colorbar=False)
     if plot_slices == True:
         if ds[x].ndim == 1 and ds[z].ndim == 1:
             ax_slicey.axvline(ds[x][i], c="k", ls="--", lw=0.75)
@@ -148,16 +148,10 @@ def plot_3d_slices(
 
     aspect = (ds[z].max() - ds[z].min()) / (ds[x].min() - ds[x].max())
     aspect = aspect if aspect > min_aspect else min_aspect
-    ratio = (
-        ds[var].shape[2] / ds[var].shape[0]
-        if ds[var].shape[2] < ds[var].shape[0]
-        else 1.0
-    )
+    ratio = ds.shape[2] / ds.shape[0] if ds.shape[2] < ds.shape[0] else 1.0
     ax_slicex = ax.inset_axes([1.0 + ratio * 0.1, 0, ratio * aspect, 1], sharey=ax)
     ax_slicex.tick_params(axis="y", labelleft=False)
-    im = ds[var][i].T.plot(
-        x=z, y=y, ax=ax_slicex, norm=norm, cmap=cmap, add_colorbar=False
-    )
+    im = ds[i].T.plot(x=z, y=y, ax=ax_slicex, norm=norm, cmap=cmap, add_colorbar=False)
     if plot_slices == True:
         if ds[y].ndim == 1 and ds[z].ndim == 1:
             ax_slicex.axhline(ds[y][j], c="k", ls="--", lw=0.75)
@@ -175,10 +169,10 @@ def plot_3d_slices(
 
 def plot_3d_slices_interactive(
     ds,
-    x="X",
-    y="Y",
-    z="Z",
-    min_aspect=0.5,
+    x="U",
+    y="V",
+    z="W",
+    min_aspect=1.0,
     plot_slices=True,
     cmap=None,
     clabel=None,
@@ -193,14 +187,14 @@ def plot_3d_slices_interactive(
     ----------
     ds : xr.DataSet or xr.DataArray of shape (nz, ny, nx)
         3D regular, structured grid containing the variable to plot.
-    x : str, default='X'
+    x : str, default='U'
         Name of the x-axis coordinates in `ds`.
-    y : str, default='Y'
+    y : str, default='V'
         Name of the x-axis coordinates in `ds`.
-    z : str, default='Z'
+    z : str, default='W'
         Name of the x-axis coordinates in `ds`.
-    min_aspect : float, default=0.5
-        Minimum aspect between 0 and 1 for the vertical slices.
+    min_aspect : float, default=1.
+        Minimum aspect factor for the vertical slices.
     plot_slices : bool, default=True
         If True, displays lines that shows where the slices are located.
     cmap : str or Colormap, default=None

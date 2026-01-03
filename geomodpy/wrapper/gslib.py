@@ -151,9 +151,12 @@ def _extract_data_from_dataset(ds, x="X", y="Y", z="Z", r="Realization"):
         )
     n_realizations = None
     dims = ("W", "V", "U")
-    if len(ds.sizes) == 4:
-        n_realizations = list(ds.sizes.values())[0]
+    if r in ds.sizes:
+        n_realizations = ds.sizes[r]
         dims = (r, "W", "V", "U")
+    if isinstance(ds, xr.Dataset):
+        extra_dims = tuple(set(ds.dims) - set(dims))
+        ds = ds.drop_dims(extra_dims, errors="ignore")
     ds = ds.to_dataframe(dims).drop([x, y, z], axis=1).reset_index(drop=True)
 
     return ds, shape, spacing, origin, n_realizations
@@ -2750,7 +2753,7 @@ class SGSIM(GSLIB):
         SK is required by theory; only in cases where the number of original data
         found in the neighborhood is large enough can OK be used without the risk
         of spreading data values beyond their range of influence.
-    secondary_data : array-like of shape (n_var, n_z, n_y, n_x), default=None
+    secondary_data : array-like of shape (n_var, n_rez, n_x, n_y, n_z), default=None
         The locally varying mean, the external drift variable, or the secondary
         variable for collocated cokriging (the secondary variable must be gridded
         at the same resolution as the model being constructed by `SGSIM`).
@@ -2922,6 +2925,18 @@ class SGSIM(GSLIB):
             lower_tail = (1, vmin)
         if upper_tail is None:
             upper_tail = (1, vmax)
+        if isinstance(secondary_data, xr.Dataset):
+            secondary_data = secondary_data.drop_vars(
+                [
+                    var
+                    for var in secondary_data.data_vars
+                    if var != secondary_data_column
+                ]
+            )
+        elif secondary_data is not None and isinstance(secondary_data_column, int):
+            secondary_data = secondary_data[
+                secondary_data_column : secondary_data_column + 1
+            ]
 
         self.parameters = [
             (data, "\\file with data", output_file_name + "_data.dat"),
@@ -3164,11 +3179,11 @@ class SISIM(GSLIB):
         with the calibration parameters; if `secondary_data` is used, `calibration`
         is a dict with the thresholds, the calibration table, and the calibration
         parameters.
-    secondary_data : array-like of shape (n_var, n_z, n_y, n_x), default=None
+    secondary_data : array-like of shape (n_var, n_x, n_y, n_z), default=None
         Gridded secondary variable to be used instead of `indicator_data`.
     secondary_data_column : int, default=4
         Index or name of the variable in `secondary_data`.
-    prior_mean_data : array-like of shape (n_classes, n_z, n_y, n_x), default=None
+    prior_mean_data : array-like of shape (n_classes, n_x, n_y, n_z), default=None
         Prior cdf or pdf mean values to be used instead of `indicator_data`. Prior
         cdf or pdf information can be a valuable vehicle to incorporate soft knowledge
         regarding the phenomenon under study. They can also be used to incorporate

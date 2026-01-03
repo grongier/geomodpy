@@ -122,7 +122,7 @@ def calculate_cell_centers(nodes):
 # Xarray datasets as structured grids
 
 
-def build_regular_structured_grid(shape, spacing, origin):
+def build_regular_structured_grid(shape, spacing, origin=None):
     """
     Builds a regular structured grid stored into a Xarray DataSet.
 
@@ -132,15 +132,18 @@ def build_regular_structured_grid(shape, spacing, origin):
         Shape of the grid along the x, y, and z axes.
     spacing : float or array-like (x, y, z)
         Cell size along the x, y, and z axes.
-    origin : float or array-like (x, y, z)
+    origin : float or array-like (x, y, z), default=None
         Coordinates at the center of the cell at the bottom left of the grid
-        along the x, y, and z axes.
+        along the x, y, and z axes. They are half the spacing by default.
 
     Returns
     -------
     grid : xarray.Dataset
         The grid.
     """
+    if origin is None:
+        origin = tuple(x / 2.0 for x in spacing)
+
     nodes = np.stack(
         np.meshgrid(
             np.linspace(
@@ -385,3 +388,50 @@ def find_enclosing_cell_from_nearest_center(
                     break
 
     return _nearest_cell_centers
+
+
+def extract_coordinates(
+    grid, x_nodes="X_nodes", y_nodes="Y_nodes", z_nodes="Z_nodes", x="X", y="Y", z="Z"
+):
+    """
+    Extracts the coordinates of the nodes, and potentially of the cells, of a
+    structured grid.
+
+    Parameters
+    ----------
+    grid : xarray.Dataset
+        Structured grid, regular or irregular.
+    x_nodes : str, default='X_nodes'
+        Name of the coordinates of the nodes along the x axis in `grid`.
+    y_nodes : str, default='Y_nodes'
+        Name of the coordinates of the nodes along the y axis in `grid`.
+    z_nodes : str, default='Z_nodes'
+        Name of the coordinates of the nodes along the z axis in `grid`.
+    x : str, default='X'
+        Name of the coordinates of the cell centers along the x axis in `grid`.
+        If None, the coordinates of the cell centers aren't returned.
+    y : str, default='Y'
+        Name of the coordinates of the cell centers along the y axis in `grid`.
+        If None, the coordinates of the cell centers aren't returned.
+    z : str, default='Z'
+        Name of the coordinates of the cell centers along the z axis in `grid`.
+        If None, the coordinates of the cell centers aren't extracted.
+
+    Returns
+    -------
+    coords_nodes : ndarray of shape (3, n_nodes_x, n_nodes_y, n_nodes_z)
+        Coordinates of the nodes.
+    coords_cells : ndarray of shape (3, n_cells_x, n_cells_y, n_cells_z)
+        Coordinates of the cell centers.
+    """
+    coords_nodes = np.stack(
+        (grid[x_nodes].to_numpy(), grid[y_nodes].to_numpy(), grid[z_nodes].to_numpy())
+    )
+    if x is not None and y is not None and z is not None:
+        coords_cells = np.stack(
+            (grid[x].to_numpy(), grid[y].to_numpy(), grid[z].to_numpy())
+        )
+    else:
+        coords_cells = None
+
+    return coords_nodes, coords_cells
