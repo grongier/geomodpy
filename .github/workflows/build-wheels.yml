@@ -51,6 +51,7 @@ jobs:
       # Build wheel
       - name: Build wheels
         env:
+          CIBW_ALLOW_EMPTY: true
           CIBW_BUILD: cp311-*
           CIBW_BEFORE_BUILD: ${{ runner.os == 'Windows' && 'mingw32-make' || 'make' }}
         run: python -m cibuildwheel
