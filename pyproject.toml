@@ -35,6 +35,11 @@ dependencies = [
     "scikit-learn"
 ]
 
+[tool.setuptools]
+ext-modules = [
+    {name = "geomodpy._dummy", sources = []},
+]
+
 [tool.setuptools.packages.find]
 exclude = ["examples"]
 
