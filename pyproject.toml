@@ -41,6 +41,9 @@ exclude = ["examples"]
 [tool.setuptools.package-data]
 geomodpy = ["wrapper/bin/**/*"]
 
+[tool.setuptools.command.bdist_wheel]
+root-is-pure = false
+
 [project.urls]
 "Homepage" = "https://github.com/grongier/geomodpy"
 "Bug Tracker" = "https://github.com/grongier/geomodpy/issues"
