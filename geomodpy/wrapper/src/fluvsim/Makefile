@@ -14,7 +14,7 @@ else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S), Linux)
     	FC = gfortran
-        SFLAG = -static
+        SFLAG = -static-libgcc -static-libgfortran
         ifeq ($(BUILDOPT), prepare)
 		    BINDIR := $(BINDIR)/linux
 		    INCDIR := $(INCDIR)/linux
@@ -22,7 +22,7 @@ else
     endif
     ifeq ($(UNAME_S), Darwin)
     	FC = gfortran
-        SFLAG = -static-libgfortran -static-libgcc
+        SFLAG = -static-libgcc -static-libgfortran
         ifeq ($(BUILDOPT), prepare)
 			UNAME_P := $(shell uname -p)
 			ifeq ($(UNAME_P), i386)

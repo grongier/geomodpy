@@ -18,7 +18,7 @@ else
     ifeq ($(UNAME_S), Linux)
     	MAKE = make
     	FC = gfortran
-        SFLAG = -static
+        SFLAG = -static-libgcc -static-libgfortran
         ifeq ($(BUILDOPT), prepare)
 		    BINDIR := $(BINDIR)/linux
 		    INCDIR := $(INCDIR)/linux
@@ -28,7 +28,7 @@ else
     ifeq ($(UNAME_S), Darwin)
     	MAKE = make
     	FC = gfortran
-        SFLAG = -static-libgfortran -static-libgcc
+        SFLAG = -static-libgcc -static-libgfortran
         ifeq ($(BUILDOPT), prepare)
 			UNAME_P := $(shell uname -p)
 			ifeq ($(UNAME_P), i386)
