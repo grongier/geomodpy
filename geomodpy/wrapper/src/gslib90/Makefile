@@ -95,13 +95,13 @@ $(BINDIR) $(INCDIR) $(LIBDIR):
 	mkdir -p $@
 
 $(LIB):
-	cd gslib; $(MAKE) -e
+	$(MAKE) -e -C gslib
 
 %: %.for
 	$(FC) -std=legacy -ffixed-line-length-none $(SFLAG) -I$(INCDIR) -J$(INCDIR) $< -o $(BINDIR)/$@ $(LIBDIR)/$(LIB)
 
 clean:
-	cd gslib; $(MAKE) clean; cd ..
+	$(MAKE) clean -C gslib
 
 delete: clean
 	$(RM) $(addprefix $(BINDIR)/, $(PROGS))

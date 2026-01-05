@@ -44,14 +44,14 @@ FOLDERS = \
 	fracnet
 
 
-all:
-	for FOLDER in $(FOLDERS); do \
-		pwd && cd $(SRCDIR)/$$FOLDER && $(MAKE) -e && pwd && cd ../../../.. && pwd; \
-	done
+all: $(FOLDERS)
+
+$(FOLDERS):
+	$(MAKE) -e -C $(SRCDIR)/$@
 
 clean:
 	for FOLDER in $(FOLDERS); do \
-		cd $(SRCDIR)/$$FOLDER && $(MAKE) -e clean && cd ../../../..; \
+		$(MAKE) clean -e -C $(SRCDIR)/$$FOLDER; \
 	done
 ifeq ($(BUILDOPT),prepare)
 	$(RM) -r $(INCDIR)
@@ -60,7 +60,7 @@ endif
 
 delete:
 	for FOLDER in $(FOLDERS); do \
-		cd $(SRCDIR)/$$FOLDER && $(MAKE) -e delete && cd ../../../..; \
+		$(MAKE) delete -e -C $(SRCDIR)/$$FOLDER; \
 	done
 ifeq ($(BUILDOPT),prepare)
 	$(RM) -r $(BINDIR)

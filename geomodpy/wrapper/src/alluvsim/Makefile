@@ -58,13 +58,13 @@ $(BINDIR) $(INCDIR):
 	mkdir -p $@
 
 $(LIB):
-	cd numerical_recipes; $(MAKE) -e
+	$(MAKE) -e -C numerical_recipes
 
 %: %.for
 	$(FC) -std=legacy -ffixed-line-length-none -fbounds-check $(SFLAG) -I$(INCDIR) -J$(INCDIR) $< -o $(BINDIR)/$@ $(LIBDIR)/$(LIB) $(LIBDIR)/$(GSLIB)
 
 clean:
-	cd numerical_recipes; $(MAKE) clean; cd ..
+	$(MAKE) clean -C numerical_recipes
 
 delete: clean
 	$(RM) $(addprefix $(BINDIR)/, $(PROGS))
