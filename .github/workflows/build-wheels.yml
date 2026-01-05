@@ -50,13 +50,14 @@ jobs:
 
       # Build wheel
       - name: Build wheels
+        shell: bash
         env:
           CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=15.0
           CIBW_BUILD: cp311-*
           CIBW_BEFORE_BUILD: >
             if [ "$RUNNER_OS" = "macOS" ]; then
               make &&
-              find geomodpy/wrapper/bin -type f -perm +111 -exec codesign --force --sign - {} \;
+              find geomodpy/wrapper/bin -type f -perm -111 -exec codesign --force --sign - {} \;
             elif [ "$RUNNER_OS" = "Windows" ]; then
               mingw32-make
             else
