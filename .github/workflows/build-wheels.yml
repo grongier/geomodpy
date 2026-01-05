@@ -17,9 +17,17 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            before_build: make
           - os: macos-15-intel
+            before_build: |
+              make
+              find geomodpy/wrapper/bin -type f -perm -111 -exec codesign --force --sign - {} \;
           - os: macos-15
+            before_build: |
+              make
+              find geomodpy/wrapper/bin -type f -perm -111 -exec codesign --force --sign - {} \;
           - os: windows-latest
+            before_build: mingw32-make
 
     steps:
       - name: Checkout repository
@@ -54,15 +62,7 @@ jobs:
         env:
           CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=15.0
           CIBW_BUILD: cp311-*
-          CIBW_BEFORE_BUILD: >
-            if [ "$RUNNER_OS" = "macOS" ]; then
-              make &&
-              find geomodpy/wrapper/bin -type f -perm -111 -exec codesign --force --sign - {} \;
-            elif [ "$RUNNER_OS" = "Windows" ]; then
-              mingw32-make
-            else
-              make
-            fi
+          CIBW_BEFORE_BUILD: ${{ matrix.before_build }}
         run: python -m cibuildwheel
 
       # Upload to GitHub Release
