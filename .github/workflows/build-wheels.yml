@@ -17,9 +17,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-          - os: macos-15-intel
-          - os: macos-latest
-          - os: windows-latest
+          # - os: macos-15-intel
+          # - os: macos-latest
+          # - os: windows-latest
 
     steps:
       - name: Checkout repository

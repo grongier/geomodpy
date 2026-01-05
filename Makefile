@@ -46,7 +46,7 @@ FOLDERS = \
 
 all:
 	for FOLDER in $(FOLDERS); do \
-		cd $(SRCDIR)/$$FOLDER && $(MAKE) -e && cd ../../../..; \
+		pwd && cd $(SRCDIR)/$$FOLDER && $(MAKE) -e && pwd && cd ../../../.. && pwd; \
 	done
 
 clean:
