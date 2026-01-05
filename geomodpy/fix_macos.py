@@ -2,6 +2,7 @@ import subprocess
 from pathlib import Path
 import platform
 
+
 def main():
     if platform.system() != "Darwin":
         print("This command is only needed on macOS.")
@@ -15,12 +16,10 @@ def main():
         return
 
     print(f"Removing quarantine attribute from: {bin_dir}")
-    subprocess.run(
-        ["xattr", "-dr", "com.apple.quarantine", str(bin_dir)],
-        check=False
-    )
+    subprocess.run(["xattr", "-dr", "com.apple.quarantine", str(bin_dir)], check=False)
 
     print("Done. You should now be able to run the executables.")
+
 
 if __name__ == "__main__":
     main()

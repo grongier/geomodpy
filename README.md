@@ -4,54 +4,14 @@ geomodpy is a Python package for geostatistics and geomodeling. Its core compone
 
 ## Installation
 
-You can directly install geomodpy from GitHub using pip:
+### On Windows (64 bit)
+
+You can directly install geomodpy from the wheel of the [release available on GitHub](https://github.com/grongier/geomodpy/releases) using pip:
    ```
-   pip install git+https://github.com/grongier/geomodpy.git
+   pip install https://github.com/grongier/geomodpy/releases/download/v0.0.1/geomodpy-0.0.1-py3-none-win_amd64.whl
    ```
 
-This includes precompiled Fortran executables but, if you need to compile the Fortran sources yourself, you can follow those steps on Debian-based Linux:
-
-1. Open a terminal and update the package list:  
-   ```
-   sudo apt-get update
-   ```
-2. Install *make* and *gfortran*:  
-   ```
-   sudo apt-get -y install make gfortran
-   ```
-3. Go to geomodpy:  
-   ```
-   cd whereisgeomody/geomodpy
-   ```
-4. Compile:  
-   ```
-   make
-   ```
-
-Those steps on MacOS:
-
-1. Open a terminal and install Xcode’s Command Line Tools:  
-   ```
-   xcode-select --install
-   ```
-2. Install Homebrew:  
-   ```
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-3. Install *make* and *gfortran*:  
-   ```
-   brew install make gcc
-   ```
-4. Go to geomodpy:  
-   ```
-   cd whereisgeomody/geomodpy
-   ```
-5. Compile:  
-   ```
-   make
-   ```
-
-And those steps on Windows:
+The wheel already includes pre-compiled Fortran executables, but you can follow those steps to recompile them:
 
 1. Install MSYS2: [www.msys2.org](https://www.msys2.org/)  
 
@@ -76,6 +36,72 @@ And those steps on Windows:
 7. Compile:  
    ```
    mingw32-make
+   ```
+
+### On Linux (Debian-based)
+
+You can directly install geomodpy from the wheel of the [release available on GitHub](https://github.com/grongier/geomodpy/releases) using pip:
+   ```
+   pip install https://github.com/grongier/geomodpy/releases/download/v0.0.1/geomodpy-0.0.1-py3-none-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+   ```
+
+The wheel already includes pre-compiled Fortran executables, but you can follow those steps to recompile them:
+
+1. Open a terminal and update the package list:  
+   ```
+   sudo apt-get update
+   ```
+2. Install *make* and *gfortran*:  
+   ```
+   sudo apt-get -y install make gfortran
+   ```
+3. Go to geomodpy:  
+   ```
+   cd whereisgeomody/geomodpy
+   ```
+4. Compile:  
+   ```
+   make
+   ```
+
+### On macOS
+
+You can directly install geomodpy from the wheel of the [release available on GitHub](https://github.com/grongier/geomodpy/releases) using pip and the following command for Mac computers with Apple silicon:
+   ```
+   pip install https://github.com/grongier/geomodpy/releases/download/v0.0.1/geomodpy-0.0.1-py3-none-macosx_15_0_arm64.whl
+   ```
+
+And the following command for Mac computers with Intel processors:
+   ```
+   pip install https://github.com/grongier/geomodpy/releases/download/v0.0.1/geomodpy-0.0.1-py3-none-macosx_15_0_x86_64.whl
+   ```
+
+The latest versions of macOS might block the pre-compiled Fortran executables already included in the wheel. Running the following command might help:
+   ```
+   python -m geomodpy.fix_macos
+   ```
+
+Otherwise you can follow those steps to recompile them:
+
+1. Open a terminal and install Xcode’s Command Line Tools:  
+   ```
+   xcode-select --install
+   ```
+2. Install Homebrew:  
+   ```
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+3. Install *make* and *gfortran*:  
+   ```
+   brew install make gcc
+   ```
+4. Go to geomodpy:  
+   ```
+   cd whereisgeomody/geomodpy
+   ```
+5. Compile:  
+   ```
+   make
    ```
 
 ## Usage
