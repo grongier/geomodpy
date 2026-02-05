@@ -26,6 +26,7 @@
 import numpy as np
 import pandas as pd
 from scipy.spatial import KDTree
+from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
 from ..gridding.structured import (
@@ -66,7 +67,7 @@ def apply_feature_names(X, feature_names):
         return X
 
 
-class SampleUpscaler:
+class SampleUpscaler(BaseEstimator):
     """
     Upscaling point samples into 3D structured grids.
 
