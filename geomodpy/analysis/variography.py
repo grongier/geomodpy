@@ -210,9 +210,14 @@ class VarioModel:
         """
         Calculates the covariance from a distance.
         """
-        max_covariance = self.max_covariance()
-
         covariance = np.zeros(1 if distance.ndim == 1 else distance.shape[1:])
+
+        if self.nugget_effect > 0.:
+            if covariance.ndim == 1:
+                covariance[0] += self.nugget_effect
+            else:
+                np.fill_diagonal(covariance, self.nugget_effect)
+
         for i, structure in enumerate(self.structures):
             # Spherical model
             if structure.model == 1:
@@ -240,7 +245,7 @@ class VarioModel:
                 )
             # Power model
             elif structure.model == 4:
-                covariance += max_covariance - structure.partial_sill * (
+                covariance += self.max_covariance() - structure.partial_sill * (
                     distance[i] ** structure.range_hmax
                 )
             # Hole effect model
